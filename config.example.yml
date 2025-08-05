@@ -1,0 +1,40 @@
+app:
+  name: name
+  mode: development
+  storage: ./storage
+  prefix:
+    path: /api
+  log:
+    level: info
+secret:
+  encrypt:
+    key: secret
+server:
+  listen: 127.0.0.1
+  port: 8000
+  timeout:
+    read: 30s
+    write: 30s
+    idle: 60s
+syslog:
+  enable: false
+  server: 127.0.0.1
+  port: 514
+  protocol: udp
+tracer:
+  enable: false
+  url: 127.0.0.1:4317
+db:
+  main:
+    host: 127.0.0.1
+    port: 3306
+    username: root
+    password: password
+    database: bio_db
+mongo:
+  connection: mongodb://root:pass@127.0.0.1:27017/bio_db?authSource=admin
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: pass
+  database: 0

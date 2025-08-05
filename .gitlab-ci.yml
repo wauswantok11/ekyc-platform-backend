@@ -1,0 +1,73 @@
+# stages:
+#   - compile
+#   - build
+#   - push
+#   - deploy
+
+# .builder-tag: &builder-tag
+#   tags:
+#     - builder
+
+# .deployer-tag: &deployer-tag
+#   tags:
+#     - deployer
+
+# .no-checkout: &no-checkout
+#   variables:
+#     GIT_STRATEGY: none
+
+# .clean: &clean
+#   before_script:
+#     - rm -rf ./out
+
+# .compile-test: &compile-test
+#   variables:
+#     STAGING: test
+
+# # Production
+# .production-only: &production-only
+#   variables:
+#     STAGING: prod
+#   only:
+#     - /^v[0-9]+(?:.[0-9]+)+(?:-patch.[0-9]+)*$/
+
+# ####################
+# # Compile stage test
+# compile test:
+#   stage: compile
+#   <<: *builder-tag
+#   <<: *compile-test
+#   <<: *clean
+#   script:
+#     - make version
+#     - make compile
+
+# ####################
+# # Production Staging
+# production build:
+#   stage: build
+#   <<: *builder-tag
+#   <<: *production-only
+#   script:
+#     - make docker
+
+# production push:
+#   stage: push
+#   <<: *no-checkout
+#   <<: *builder-tag
+#   <<: *production-only
+#   before_script:
+#     - docker login ${CI_REGISTRY} -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD}
+#   script:
+#     - make push
+
+# production deploy:
+#   stage: deploy
+#   <<: *no-checkout
+#   <<: *deployer-tag
+#   <<: *production-only
+#   when: manual
+#   script:
+#     - kubectl -n $GO_HEALTH_ID_NS get deployment $GO_HEALTH_ID_DP
+#     - kubectl -n $GO_HEALTH_ID_NS set image deployment $GO_HEALTH_ID_DP $GO_HEALTH_ID_PO=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+#     - kubectl -n $GO_HEALTH_ID_NS rollout restart deployment/$GO_HEALTH_ID_DP
