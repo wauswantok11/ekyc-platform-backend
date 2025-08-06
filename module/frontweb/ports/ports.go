@@ -10,6 +10,7 @@ import (
 	"git.inet.co.th/ekyc-platform-backend/config"
 	"git.inet.co.th/ekyc-platform-backend/module/frontweb/dto"
 	"git.inet.co.th/ekyc-platform-backend/pkg/cache"
+	"git.inet.co.th/ekyc-platform-backend/pkg/database"
 	oneId "git.inet.co.th/ekyc-platform-backend/pkg/one-id"
 )
 
@@ -18,6 +19,7 @@ type Repository interface {
 	AppCfg() *config.Config
 	Log() *logrus.Entry
 	OneId() *oneId.Client
+	DB() *database.Client
 	Cache() *cache.Redis
 	Trace(ctx context.Context, spanName string, attributes ...trace.SpanStartOption) (context.Context, trace.Span)
 
@@ -26,6 +28,10 @@ type Repository interface {
 	//* Redis Repo
 	// SetRedisRepo(ctx context.Context, cKey, Accesstoken string) error
 	SetRedisRepo(ctx context.Context, cKey string, userProfile map[string]interface{}) error
+	//* CRUD UserRepo
+	FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
+	CreateUserRepo(ctx context.Context, userProfile map[string]interface{}) error
+	UpdateUserRepo(ctx context.Context, userProfile map[string]interface{}, id *string) error
 }
 
 type Service interface {

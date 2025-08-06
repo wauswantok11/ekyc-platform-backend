@@ -68,7 +68,8 @@ func (c *Client) ConnectWithGormConfig(gormCfg gorm.Config) error {
 	if c.config.DebugMode {
 		c.ctx = c.ctx.Debug()
 	}
-	if err := c.ctx.AutoMigrate( 
+	if err := c.ctx.AutoMigrate(
+		model.Account{},
 		model.Address{},
 		model.Zipcode{}); err != nil {
 		return err

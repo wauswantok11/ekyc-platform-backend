@@ -4,13 +4,11 @@ import (
 	"time"
 
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 )
 
 type Account struct {
-	gorm.Model
-	AccountOneId string `gorm:"column:house_no;type:text;size:255" json:"account_id_one"`
-
+	Model
+	AccountOneId    string `gorm:"column:account_one_id;type:text;size:255" json:"account_one_id"`
 	CidEncrypt      string `gorm:"column:cid_encrypt;type:text;" json:"cid_encrypt"`
 	CidHash         string `gorm:"column:cid_hash;index;size:255;" json:"cid_hash"`
 	LaserIdEncrypt  string `gorm:"column:laser_id_encrypt;type:text;" json:"laser_id_encrypt"`
@@ -30,15 +28,15 @@ type Account struct {
 	MiddleNameEng   string `gorm:"column:middle_name_eng;size:255" json:"middle_name_eng"`
 	LastNameEng     string `gorm:"column:lastname_eng;size:255" json:"lastname_eng"`
 
-	Gender       string       `gorm:"column:gender;size:255" json:"gender"`
-	Email        string       `gorm:"column:email;size:255;index" json:"email"`
-	Phone        string       `gorm:"column:phone;size:255;index" json:"phone"`
-	BirthDate    string       `gorm:"column:birth_date" json:"birth_date"`
-	NationCode   string       `gorm:"column:nation_code;size:255" json:"nation_code"`
-	Nationality  *Nationality `gorm:"foreignKey:NationCode;references:code" json:"nation_detail"`
-	TypeRegister string       `gorm:"column:type_register;size:50;index;" json:"type_register"`
-	AddressId    uuid.UUID    `gorm:"column:address_id;size:50;index" json:"address_id"`
-	Address      *Address     `gorm:"->;foreignKey:AddressId;references:Id" json:"address"`
+	Gender     string `gorm:"column:gender;size:255" json:"gender"`
+	Email      string `gorm:"column:email;size:255;index" json:"email"`
+	Phone      string `gorm:"column:phone;size:255;index" json:"phone"`
+	BirthDate  string `gorm:"column:birth_date" json:"birth_date"`
+	NationCode string `gorm:"column:nation_code;size:255" json:"nation_code"`
+	//Nationality  *Nationality `gorm:"foreignKey:NationCode;references:code" json:"nation_detail"`
+	TypeRegister string    `gorm:"column:type_register;size:50;index;" json:"type_register"`
+	AddressId    uuid.UUID `gorm:"column:address_id;size:50;index" json:"address_id"`
+	//Address      *Address     `gorm:"->;foreignKey:AddressId;references:Id" json:"address"`
 
 	LastLogin time.Time `gorm:"column:last_login;" json:"last_login"`
 	Username  string    `gorm:"column:username;size:50;index;" json:"username"`

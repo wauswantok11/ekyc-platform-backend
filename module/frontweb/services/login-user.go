@@ -15,6 +15,12 @@ import (
 // var ctxFiber *fiber.Ctx
 
 func (svc Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser, error) {
+	tx := svc.repo.DB().Ctx().Begin()
+	if tx.Error != nil {
+		logrus.Error("[*] Tx Error : LoginUserOneService -> ", tx.Error)
+		return nil, tx.Error
+	}
+
 	ResponseSuccessLoginPWD, ResponseErrorLoginPWD, err := svc.repo.OneId().LoginPWD(ctx, payload.Username, payload.Password)
 	if err != nil {
 		logrus.Error("[*] Error Service : LoginPWD -> ", err.Error())
@@ -63,7 +69,7 @@ func (svc Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 		"username ":       responseToken.Username,
 		"login_by ":       responseToken.LoginBy,
 	}
-	
+
 	cKeyToken := fmt.Sprintf("%s_account_token", responseToken.AccountId)
 	if errRedis := svc.repo.SetRedisRepo(ctx, cKeyToken, strDataToken); errRedis != nil {
 		logrus.Error("[*] Error : SetRedisRepo -> ", errRedis.Error())
@@ -112,6 +118,32 @@ func (svc Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 	if errRedis := svc.repo.SetRedisRepo(ctx, cKeyAccount, strDataProfileDetail); errRedis != nil {
 		logrus.Error("[*] Error : SetRedisRepo -> ", errRedis.Error())
 		return nil, errRedis
+	}
+
+	//* Find account in Database
+	Id, errFindAccount := svc.repo.FindUserByAccountIdRepo(ctx, AccountOneId.ID)
+	if errFindAccount != nil {
+		logrus.Error("[*] Error : FindUserByAccountIdRepo -> ", errFindAccount.Error())
+		return nil, errFindAccount
+	}
+
+	//* create or update account
+	if Id != nil {
+		//* update
+		errUpdate := svc.repo.UpdateUserRepo(ctx, strDataProfileDetail, Id)
+		if errUpdate != nil {
+			tx.Rollback()
+			logrus.Error("[*] Error : UpdateUserRepo -> ", errUpdate.Error())
+			return nil, errUpdate
+		}
+	} else {
+		//* create
+		errCreate := svc.repo.CreateUserRepo(ctx, strDataProfileDetail)
+		if errCreate != nil {
+			tx.Rollback()
+			logrus.Error("[*] Error : CreateUserRepo -> ", errCreate.Error())
+			return nil, errCreate
+		}
 	}
 
 	return &responseToken, nil
