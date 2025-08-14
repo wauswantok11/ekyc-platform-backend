@@ -20,7 +20,6 @@ type Redis struct {
 	Client *redis.Client
 }
 
-
 func New(host string, port string, password string, db int) Redis {
 	return Redis{
 		Client: redis.NewClient(&redis.Options{
@@ -30,7 +29,6 @@ func New(host string, port string, password string, db int) Redis {
 		}),
 	}
 }
-
 
 func NewWithCfg(cfg Config) Redis {
 	return New(

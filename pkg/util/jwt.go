@@ -15,16 +15,15 @@ func GenerateJWT(jwtSecretKey string, payload map[string]interface{}) (string, e
 	claims["exp"] = time.Now().Add(24 * time.Hour).Unix()
 	claims["iat"] = time.Now().Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
- 
+
 	return token.SignedString([]byte(jwtSecretKey))
 }
 func ParseJWT(jwtSecretKey, tokenStr string) (map[string]interface{}, error) {
-
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return jwtSecretKey, nil
+		return []byte(jwtSecretKey), nil // แปลงเป็น []byte
 	})
 
 	if err != nil {

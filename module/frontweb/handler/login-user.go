@@ -32,7 +32,7 @@ func (handler Handler) PostLoginUserHandler(ctx *fiber.Ctx) error {
 		return util.HttpError(ctx, http.StatusBadRequest, "Fail", strings.TrimSpace(trimmed))
 	}
 
-	responseLogin, err := handler.svc.LoginUserOneService(ctx, ctx.UserContext(), payload)
+	responseLogin, errOpenApiOne, err := handler.svc.LoginUserOneService(ctx, ctx.UserContext(), payload)
 	if err != nil {
 		if err.Error() == "The user credentials were incorrect." {
 			return ctx.Status(http.StatusBadRequest).JSON(dto.ApiResponse{
@@ -41,11 +41,11 @@ func (handler Handler) PostLoginUserHandler(ctx *fiber.Ctx) error {
 				Message:    err.Error(),
 				StatusCode: http.StatusBadRequest,
 			})
-		} else if err.Error() == "login error" {
+		} else if err.Error() == "error one" {
 			return ctx.Status(http.StatusServiceUnavailable).JSON(dto.ApiResponse{
 				Status:     "failed",
 				Data:       "Service Unavailable",
-				Message:    err.Error(),
+				Message:    errOpenApiOne,
 				StatusCode: http.StatusServiceUnavailable,
 			})
 		}
@@ -61,6 +61,15 @@ func (handler Handler) PostLoginUserHandler(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(dto.ApiResponse{
 		Status:     "success",
 		Data:       responseLogin,
+		Message:    "OK",
+		StatusCode: http.StatusOK,
+	})
+}
+
+func (handler Handler) PostLogoutUserHandler(ctx *fiber.Ctx) error {
+	return ctx.Status(http.StatusOK).JSON(dto.ApiResponse{
+		Status:     "success",
+		Data:       "",
 		Message:    "OK",
 		StatusCode: http.StatusOK,
 	})

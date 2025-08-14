@@ -2,11 +2,11 @@ package one_id
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/base64"
 	"errors"
 	"fmt"
 
-	// "github.com/bytedance/sonic"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 
@@ -33,16 +33,37 @@ func (c *Client) GetAccountByToken(ctx context.Context, token string) (*Response
 	}
 
 	if responseApi.Code != fiber.StatusOK {
-		if err := json.Unmarshal(responseApi.Body, &ResponseErrorOneId); err != nil {
+		if err := sonic.Unmarshal(responseApi.Body, &ResponseErrorOneId); err != nil {
 			logrus.Error("PKG LoginPWD : json.Unmarshal response error body", err)
 			return nil, nil, fmt.Errorf("error unmarshalling response error body: %w", err)
 		}
 		return nil, &ResponseErrorOneId, nil
 	}
 
-	if err := json.Unmarshal(responseApi.Body, &ResponseSuccessAccount); err != nil {
+	if err := sonic.Unmarshal(responseApi.Body, &ResponseSuccessAccount); err != nil {
 		logrus.Error("PKG LoginPWD : json.Unmarshal response success body", err)
 		return nil, nil, fmt.Errorf("error unmarshalling response success body")
 	}
 	return &ResponseSuccessAccount, nil, nil
+}
+
+func (c *Client) GetAccountProfileAvatarById(ctx context.Context, accountOneId string) (string, error) {
+	_, span := c.tracer.Start(ctx, "one_id.api_get_avatar")
+	defer span.End()
+
+	urlPath := fmt.Sprintf(`%s/api/get_avatar/%s`, c.url, accountOneId)
+	headers := map[string]string{
+		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
+	}
+
+	responseApi, err := requests.Get(urlPath, headers, nil, int(c.timeOut))
+	if err != nil {
+		logrus.Errorln("Error connecting to One Id backend:", err.Error())
+		return "", errors.New("failed to connect to One Id backend")
+	}
+
+	// responseApi.Body น่าจะเป็น []byte อยู่แล้ว
+	base64Str := base64.StdEncoding.EncodeToString(responseApi.Body)
+
+	return base64Str, nil
 }

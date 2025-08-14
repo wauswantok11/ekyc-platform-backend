@@ -30,13 +30,16 @@ type Repository interface {
 	SetRedisRepo(ctx context.Context, cKey string, userProfile map[string]interface{}) error
 	//* CRUD UserRepo
 	FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
+	FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
+
 	CreateUserRepo(ctx context.Context, userProfile map[string]interface{}) error
 	UpdateUserRepo(ctx context.Context, userProfile map[string]interface{}, id *string) error
 }
 
 type Service interface {
 	//* Login Account One Id
-	LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser, error)
+	LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser,string,  error)
 	//* Get Profile One Id
-	GetProfileOneIdService(ctx context.Context, accessToken string) (dto.ResponseUserProfile, error)
+	GetProfileOneIdService(ctx context.Context, accountId string) (dto.ResponseUserProfile,string, error)
+	GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error) 
 }

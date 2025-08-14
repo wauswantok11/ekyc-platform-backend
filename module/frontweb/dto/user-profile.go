@@ -6,15 +6,16 @@ type RequestLoginUser struct {
 }
 
 type ResponseLoginUser struct {
-	TokenType      string `json:"token_type,omitempty"`
-	ExpiresIn      int64  `json:"expires_in ,omitempty"`
-	AccessToken    string `json:"access_token ,omitempty"`
-	RefreshToken   string `json:"refresh_token ,omitempty"`
-	ExpirationDate string `json:"expiration_date ,omitempty"`
-	AccountId      string `json:"account_id ,omitempty"`
-	Result         string `json:"result ,omitempty"`
-	Username       string `json:"username ,omitempty"`
-	LoginBy        string `json:"login_by ,omitempty"`
+	TokenType      string              `json:"token_type,omitempty"`
+	ExpiresIn      int64               `json:"expires_in ,omitempty"`
+	AccessToken    string              `json:"access_token ,omitempty"`
+	RefreshToken   string              `json:"refresh_token ,omitempty"`
+	ExpirationDate string              `json:"expiration_date ,omitempty"`
+	AccountId      string              `json:"account_id ,omitempty"`
+	Result         string              `json:"result ,omitempty"`
+	Username       string              `json:"username ,omitempty"`
+	LoginBy        string              `json:"login_by ,omitempty"`
+	UserProfile    ResponseUserProfile `json:"user_profile ,omitempty"`
 }
 
 type RequestUserProfile struct {
