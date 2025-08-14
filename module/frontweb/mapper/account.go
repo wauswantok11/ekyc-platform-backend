@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"git.inet.co.th/ekyc-platform-backend/model"
+	"git.inet.co.th/ekyc-platform-backend/module/frontweb/dto"
+	one_id "git.inet.co.th/ekyc-platform-backend/pkg/one-id"
 )
 
 func MapToAccount(data map[string]interface{}) (*model.Account, error) {
@@ -76,4 +78,38 @@ func MapToAccount(data map[string]interface{}) (*model.Account, error) {
 	account.LastLogin = time.Now()
 
 	return account, nil
+}
+
+func MapResponseApiAccountOneIdToResponseUserProfile(src one_id.ResponseApiAccountOneId) *dto.ResponseUserProfile {
+	return &dto.ResponseUserProfile{
+		AccountId:           src.ID,
+		FirstNameTH:         src.FirstNameTH,
+		MiddleNameTH:        src.MiddleNameTH,
+		LastNameTH:          src.LastNameTH,
+		FirstNameEng:        src.FirstNameEng,
+		MiddleNameEng:       src.MiddleNameEng,
+		LastNameEng:         src.LastNameEng,
+		SpecialTitleNameTH:  src.SpecialTitleNameTH,
+		AccountTitleTH:      src.AccountTitleTH,
+		SpecialTitleNameEng: src.SpecialTitleNameEng,
+		AccountTitleEng:     src.AccountTitleEng,
+		IdCardType:          src.IDCardType,
+		IdCardNum:           src.IDCardNum,
+		HashIdCardNum:       src.HashIDCardNum,
+		AccountCategory:     src.AccountCategory,
+		AccountSubCategory:  src.AccountSubCategory,
+		ThaiEmail:           src.ThaiEmail,
+		ThaiEmail2:          src.ThaiEmail2,
+		ThaiEmail3:          src.ThaiEmail3,
+		StatusCD:            src.StatusCD,
+		BirthDate:           src.BirthDate,
+	}
+}
+
+func MapModelAccountToResponseUserProfile(src *model.Account) *dto.ResponseUserProfile {
+
+	var res dto.ResponseUserProfile
+	res.AccountId = src.AccountOneId
+
+	return nil
 }

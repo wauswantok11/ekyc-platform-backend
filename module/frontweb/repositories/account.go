@@ -22,7 +22,7 @@ func (r Repository) GetAccountByAccountIdOneRepo(ctx context.Context, accountIdO
 
 	return "", nil
 }
-func (r Repository) FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (model.Account, error) {
+func (r Repository) FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*model.Account, error) {
 	var account model.Account
 	err := r.dbMain.Ctx().WithContext(ctx).
 		Model(&model.Account{}).
@@ -30,15 +30,10 @@ func (r Repository) FindUserDetailByAccountIdRepo(ctx context.Context, accountId
 		First(&account).Error
 
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Error("Unexpected DB error:", err)
-			return account, err
-		}
-		logrus.Warn("Account not found")
-		return account, nil
-	} 
-	
-	return account, nil
+		return nil, err
+	}
+
+	return &account, nil
 }
 
 func (r Repository) FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error) {
@@ -55,7 +50,7 @@ func (r Repository) FindUserByAccountIdRepo(ctx context.Context, accountId strin
 		}
 		logrus.Warn("Account not found")
 		return nil, nil
-	} 
+	}
 	Id := account.Id.String()
 	return &Id, nil
 }

@@ -8,6 +8,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	"git.inet.co.th/ekyc-platform-backend/config"
+	"git.inet.co.th/ekyc-platform-backend/model"
 	"git.inet.co.th/ekyc-platform-backend/module/frontweb/dto"
 	"git.inet.co.th/ekyc-platform-backend/pkg/cache"
 	"git.inet.co.th/ekyc-platform-backend/pkg/database"
@@ -30,7 +31,7 @@ type Repository interface {
 	SetRedisRepo(ctx context.Context, cKey string, userProfile map[string]interface{}) error
 	//* CRUD UserRepo
 	FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
-	FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
+	FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*model.Account, error)
 
 	CreateUserRepo(ctx context.Context, userProfile map[string]interface{}) error
 	UpdateUserRepo(ctx context.Context, userProfile map[string]interface{}, id *string) error
@@ -38,8 +39,8 @@ type Repository interface {
 
 type Service interface {
 	//* Login Account One Id
-	LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser,string,  error)
+	LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser, string, error)
 	//* Get Profile One Id
-	GetProfileOneIdService(ctx context.Context, accountId string) (dto.ResponseUserProfile,string, error)
-	GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error) 
+	GetProfileOneIdService(ctx context.Context, accountId, token string) (*dto.ResponseUserProfile, string, error)
+	GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error)
 }

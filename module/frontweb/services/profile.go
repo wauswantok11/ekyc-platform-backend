@@ -2,30 +2,33 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"git.inet.co.th/ekyc-platform-backend/module/frontweb/dto"
+	"git.inet.co.th/ekyc-platform-backend/module/frontweb/mapper"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
-func (srv Service) GetProfileOneIdService(ctx context.Context, accountId, tokenOne string) (dto.ResponseUserProfile, string, error) {
+func (srv Service) GetProfileOneIdService(ctx context.Context, accountId, tokenOne string) (*dto.ResponseUserProfile, string, error) {
 	var response dto.ResponseUserProfile
 
-	account, err := srv.repo.FindUserDetailByAccountIdRepo(ctx, accountId)
+	accountDetail, err := srv.repo.FindUserDetailByAccountIdRepo(ctx, accountId)
 	if err != nil {
-		if !err.Is(err, gorm.ErrRecordNotFound) {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.Error("[*] Error Service : LoginPWD -> record not found")
-			return response, "", err
+			return nil, "", err
 		}
-		responseOne, err := srv.repo.OneId().GetAccountByToken(ctx, tokenOne)
-		if err {
+		responseOne, ResponseErrorOneId, err := srv.repo.OneId().GetAccountByToken(ctx, tokenOne)
+		if err != nil {
 			logrus.Error("[*] Error Pkg One : GetAccountByToken -> ", err.Error())
-			return "", err
+			return nil, ResponseErrorOneId.ErrorMessage, errors.New("error one")
 		}
-
+		return mapper.MapResponseApiAccountOneIdToResponseUserProfile(*responseOne), "", nil
 	}
-
-	return response, "", nil
+	logrus.Println(accountDetail)
+	//map accountDetail
+	return &response, "", nil
 }
 
 func (srv Service) GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error) {

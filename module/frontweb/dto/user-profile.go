@@ -23,7 +23,7 @@ type RequestUserProfile struct {
 }
 
 type ResponseUserProfile struct {
-	AccessId            string `json:"account_id ,omitempty"`
+	AccountId           string `json:"account_id ,omitempty"`
 	FirstNameTH         string `json:"first_name_th ,omitempty"`
 	MiddleNameTH        string `json:"middle_name_th,omitempty"`
 	LastNameTH          string `json:"last_name_th ,omitempty"`

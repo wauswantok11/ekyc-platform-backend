@@ -19,8 +19,8 @@ func (c *Client) LoginPWD(ctx context.Context, username, password string) (*Resp
 	defer span.End()
 
 	var ResponseSuccessLoginPWD ResponseSuccessLoginPWD
-	var ResponseErrorOneId ResponseErrorOneId 
-	
+	var ResponseErrorOneId ResponseErrorOneId
+
 	urlPath := fmt.Sprintf(`%s/api/oauth/getpwd`, c.url)
 	headers := map[string]string{
 		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
@@ -51,8 +51,8 @@ func (c *Client) LoginPWD(ctx context.Context, username, password string) (*Resp
 		}
 		return nil, &ResponseErrorOneId, nil
 	}
- 
-	if err := json.Unmarshal(responseApi.Body, &ResponseSuccessLoginPWD); err != nil {
+
+	if err := sonic.Unmarshal(responseApi.Body, &ResponseSuccessLoginPWD); err != nil {
 		logrus.Error("PKG LoginPWD : json.Unmarshal response success body", err)
 		return nil, nil, fmt.Errorf("error unmarshalling response success body")
 	}
