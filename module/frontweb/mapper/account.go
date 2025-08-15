@@ -108,8 +108,25 @@ func MapResponseApiAccountOneIdToResponseUserProfile(src one_id.ResponseApiAccou
 
 func MapModelAccountToResponseUserProfile(src *model.Account) *dto.ResponseUserProfile {
 
-	var res dto.ResponseUserProfile
-	res.AccountId = src.AccountOneId
+	res := dto.ResponseUserProfile{
+		AccountId:           src.AccountOneId,
+		FirstNameTH:         src.FirstNameTh,
+		MiddleNameTH:        src.MiddleNameTh,
+		LastNameTH:          src.LastNameTh,
+		FirstNameEng:        src.FirstNameEng,
+		MiddleNameEng:       src.MiddleNameEng,
+		LastNameEng:         src.LastNameEng,
+		SpecialTitleNameTH:  src.SpecialTitleTh,
+		AccountTitleTH:      src.TitleTh,
+		SpecialTitleNameEng: src.SpecialTitleEng,
+		AccountTitleEng:     src.TitleEng,
+		IdCardType:          src.CidType,
+		IdCardNum:           src.CidEncrypt,
+		HashIdCardNum:       src.CidHash, 
+		Email:     src.Email,
+		Mobile:    src.Phone,
+		BirthDate: src.BirthDate,
+	}
 
-	return nil
+	return &res
 }

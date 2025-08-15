@@ -11,12 +11,10 @@ import (
 )
 
 func (srv Service) GetProfileOneIdService(ctx context.Context, accountId, tokenOne string) (*dto.ResponseUserProfile, string, error) {
-	var response dto.ResponseUserProfile
-
 	accountDetail, err := srv.repo.FindUserDetailByAccountIdRepo(ctx, accountId)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Error("[*] Error Service : LoginPWD -> record not found")
+			logrus.Error("[*] Error Service : LoginPWD -> ", err.Error())
 			return nil, "", err
 		}
 		responseOne, ResponseErrorOneId, err := srv.repo.OneId().GetAccountByToken(ctx, tokenOne)
@@ -24,11 +22,12 @@ func (srv Service) GetProfileOneIdService(ctx context.Context, accountId, tokenO
 			logrus.Error("[*] Error Pkg One : GetAccountByToken -> ", err.Error())
 			return nil, ResponseErrorOneId.ErrorMessage, errors.New("error one")
 		}
+
 		return mapper.MapResponseApiAccountOneIdToResponseUserProfile(*responseOne), "", nil
 	}
-	logrus.Println(accountDetail)
+
 	//map accountDetail
-	return &response, "", nil
+	return mapper.MapModelAccountToResponseUserProfile(accountDetail), "", nil
 }
 
 func (srv Service) GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error) {

@@ -67,6 +67,18 @@ func (handler Handler) PostLoginUserHandler(ctx *fiber.Ctx) error {
 }
 
 func (handler Handler) PostLogoutUserHandler(ctx *fiber.Ctx) error {
+	// ดึง JWT หรือ session ID จาก cookie
+	accountID, _ := ctx.Locals("account_id").(string)
+
+	if err := handler.svc.LogoutUserService(ctx, ctx.Context(), "authentication", accountID); err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.ApiResponse{
+			Status:     "internal server error",
+			Data:       "",
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		})
+	}
+
 	return ctx.Status(http.StatusOK).JSON(dto.ApiResponse{
 		Status:     "success",
 		Data:       "",

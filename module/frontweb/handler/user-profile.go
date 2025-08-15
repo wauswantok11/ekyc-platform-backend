@@ -19,7 +19,17 @@ func (handler Handler) GetUserProfile(ctx *fiber.Ctx) error {
         })
     }
 
-	profileUser, errOpenApiOne, err := handler.svc.GetProfileOneIdService(ctx.UserContext(), accountID)
+	AccessToken, ok := ctx.Locals("token_data").(string)
+    if !ok || AccessToken == "" {
+        return ctx.Status(fiber.StatusUnauthorized).JSON(dto.ApiResponse{
+            Status:     "failed",
+            Data:       nil,
+            Message:    "Unauthorized: AccessToken not found",
+            StatusCode: fiber.StatusUnauthorized,
+        })
+    }
+
+	profileUser, errOpenApiOne, err := handler.svc.GetProfileOneIdService(ctx.UserContext(), accountID, AccessToken)
 	if err != nil {
 		if err.Error() == "error one" {
 			return ctx.Status(http.StatusServiceUnavailable).JSON(dto.ApiResponse{

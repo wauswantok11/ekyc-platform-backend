@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
@@ -150,5 +151,27 @@ func (srv Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 	return &responseToken, "", nil
 }
 func (srv Service) LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, keyCookie, accountId string) error {
+	keys := []string{
+		accountId + "_account_token",
+		accountId + "_account_detail",
+	}
+
+	for _, k := range keys {
+		if err := srv.repo.DelRedisRepo(ctx, k); err != nil {
+			logrus.Error("Failed to delete keys from Redis:", err)
+			return err
+		}
+
+	}
+
+	ctxFiber.Cookie(&fiber.Cookie{
+		Name:     "authentication",
+		Value:    "",
+		Path:     "/",
+		HTTPOnly: true,
+		Secure:   false,
+		Expires:  time.Now().Add(-time.Hour),
+	})
+
 	return nil
 }

@@ -65,8 +65,8 @@ func AuthMiddleware(store *cache.Redis, jwtSecret string) fiber.Handler {
 			})
 		}
  
-		ctx.Locals("account_id", accountID)
-		ctx.Locals("token_data", redisData)
+		ctx.Locals("account_id", accountID) 
+		ctx.Locals("token_data", redisData["access_token"])
 
 		return ctx.Next()
 	}

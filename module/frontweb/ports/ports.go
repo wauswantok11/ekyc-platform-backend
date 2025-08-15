@@ -29,6 +29,7 @@ type Repository interface {
 	//* Redis Repo
 	// SetRedisRepo(ctx context.Context, cKey, Accesstoken string) error
 	SetRedisRepo(ctx context.Context, cKey string, userProfile map[string]interface{}) error
+	DelRedisRepo(ctx context.Context, cKey string) error
 	//* CRUD UserRepo
 	FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
 	FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*model.Account, error)
@@ -40,6 +41,8 @@ type Repository interface {
 type Service interface {
 	//* Login Account One Id
 	LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser, string, error)
+	LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, keyCookie, accountId string) error
+	
 	//* Get Profile One Id
 	GetProfileOneIdService(ctx context.Context, accountId, token string) (*dto.ResponseUserProfile, string, error)
 	GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error)

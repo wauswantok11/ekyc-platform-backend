@@ -9,6 +9,7 @@ import (
 type Account struct {
 	Model
 	AccountOneId    string `gorm:"column:account_one_id;type:text;size:255" json:"account_one_id"`
+	CidType         string `gorm:"column:cid_type;type:text;" json:"cid_type"`
 	CidEncrypt      string `gorm:"column:cid_encrypt;type:text;" json:"cid_encrypt"`
 	CidHash         string `gorm:"column:cid_hash;index;size:255;" json:"cid_hash"`
 	LaserIdEncrypt  string `gorm:"column:laser_id_encrypt;type:text;" json:"laser_id_encrypt"`

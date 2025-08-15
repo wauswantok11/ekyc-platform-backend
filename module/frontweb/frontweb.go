@@ -44,6 +44,7 @@ func addRouter(router fiber.Router, handler *handler.Handler, jwtSecret string, 
 	forgetPassword := v1.Group("/forget-password")
 	forgetPassword.Post("/email", handler.PostForgetPasswordEmailUserHandler)
 	forgetPassword.Post("/mobile", handler.PostForgetPasswordMobileUserHandler)
+	
 	register := v1.Group("/register")
 	register.Post("/", handler.PostRegisterUserHandler)
 
