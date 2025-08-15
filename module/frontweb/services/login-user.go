@@ -149,3 +149,6 @@ func (srv Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 
 	return &responseToken, "", nil
 }
+func (srv Service) LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, keyCookie, accountId string) error {
+	return nil
+}
