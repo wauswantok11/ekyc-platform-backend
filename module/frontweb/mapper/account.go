@@ -122,11 +122,30 @@ func MapModelAccountToResponseUserProfile(src *model.Account) *dto.ResponseUserP
 		AccountTitleEng:     src.TitleEng,
 		IdCardType:          src.CidType,
 		IdCardNum:           src.CidEncrypt,
-		HashIdCardNum:       src.CidHash, 
-		Email:     src.Email,
-		Mobile:    src.Phone,
-		BirthDate: src.BirthDate,
+		HashIdCardNum:       src.CidHash,
+		Email:               src.Email,
+		Mobile:              src.Phone,
+		BirthDate:           src.BirthDate,
 	}
 
 	return &res
+}
+
+func MapAccountOneIdToModelAccount(src *one_id.ResponseApiAccountOneId) *model.Account {
+	return &model.Account{
+		AccountOneId:    src.ID,
+		TitleTh:         src.AccountTitleTH,
+		SpecialTitleTh:  src.SpecialTitleNameTH,
+		MiddleNameTh:    src.MiddleNameTH,
+		LastNameTh:      src.LastNameTH,
+		FirstNameEng:    src.FirstNameEng,
+		MiddleNameEng:   src.MiddleNameEng,
+		LastNameEng:     src.LastNameEng,
+		TitleEng:        src.AccountTitleEng,
+		SpecialTitleEng: src.SpecialTitleNameEng,
+		CidType:         src.IDCardType,
+		CidHash:         src.HashIDCardNum,
+		Email:           src.ThaiEmail,
+		BirthDate:       src.BirthDate,
+	}
 }

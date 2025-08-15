@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"git.inet.co.th/ekyc-platform-backend/model"
-	"git.inet.co.th/ekyc-platform-backend/module/frontweb/mapper"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
 	oteltrace "go.opentelemetry.io/otel/trace"
@@ -55,13 +54,7 @@ func (r Repository) FindUserByAccountIdRepo(ctx context.Context, accountId strin
 	return &Id, nil
 }
 
-func (r Repository) CreateUserRepo(ctx context.Context, userProfile map[string]interface{}) error {
-	newAccount, errMapper := mapper.MapToAccount(userProfile)
-	if errMapper != nil {
-		logrus.Error("Mapping error: ", errMapper)
-		return errMapper
-	}
-
+func (r Repository) CreateUserRepo(ctx context.Context, newAccount model.Account) error {
 	err := r.dbMain.Ctx().WithContext(ctx).Create(newAccount).Error
 	if err != nil {
 		logrus.Error("Failed to create account: ", err)
@@ -70,16 +63,10 @@ func (r Repository) CreateUserRepo(ctx context.Context, userProfile map[string]i
 	return nil
 }
 
-func (r Repository) UpdateUserRepo(ctx context.Context, userProfile map[string]interface{}, id *string) error {
+func (r Repository) UpdateUserRepo(ctx context.Context, updatedAccount model.Account, id *string) error {
 	if id == nil {
 		return errors.New("id is invalid")
 	}
-	updatedAccount, errMapper := mapper.MapToAccount(userProfile)
-	if errMapper != nil {
-		logrus.Error("Mapping error: ", errMapper)
-		return errMapper
-	}
-
 	// Perform the update
 	err := r.dbMain.Ctx().WithContext(ctx).
 		Model(&model.Account{}).
