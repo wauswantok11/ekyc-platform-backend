@@ -23,6 +23,11 @@ func (r Repository) GetAccountByAccountIdOneRepo(ctx context.Context, accountIdO
 	return "", nil
 }
 func (r Repository) FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*model.Account, error) {
+	_, span := r.Trace(ctx, "FindUserDetailByAccountIdRepo", oteltrace.WithAttributes(
+		attribute.String("AccountIdOne", accountId),
+	))
+	defer span.End()
+
 	var account model.Account
 	err := r.dbMain.Ctx().WithContext(ctx).
 		Model(&model.Account{}).
@@ -37,6 +42,11 @@ func (r Repository) FindUserDetailByAccountIdRepo(ctx context.Context, accountId
 }
 
 func (r Repository) FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error) {
+	_, span := r.Trace(ctx, "FindUserByAccountIdRepo", oteltrace.WithAttributes(
+		attribute.String("AccountIdOne", accountId),
+	))
+	defer span.End()
+
 	var account model.Account
 	err := r.dbMain.Ctx().WithContext(ctx).
 		Model(&model.Account{}).
@@ -56,6 +66,11 @@ func (r Repository) FindUserByAccountIdRepo(ctx context.Context, accountId strin
 }
 
 func (r Repository) CreateUserRepo(ctx context.Context, userProfile map[string]interface{}) error {
+	_, span := r.Trace(ctx, "CreateUserRepo", oteltrace.WithAttributes(
+		attribute.String("AccountIdOne", ""),
+	))
+	defer span.End()
+
 	newAccount, errMapper := mapper.MapToAccount(userProfile)
 	if errMapper != nil {
 		logrus.Error("Mapping error: ", errMapper)
@@ -88,6 +103,22 @@ func (r Repository) UpdateUserRepo(ctx context.Context, userProfile map[string]i
 
 	if err != nil {
 		logrus.Error("Failed to update account: ", err)
+		return err
+	}
+	return nil
+}
+
+func (r Repository) CreateOtpManagemontRepo(ctx context.Context, reqStu model.OtpManagement) error {
+	_, span := r.Trace(ctx, "CreateOtpManagemontRepo", oteltrace.WithAttributes(
+		attribute.String("mobile_no", reqStu.MobileNo),
+	))
+	defer span.End()
+
+	// if reqStu.Id == (uuid.UUID{}) {
+	// 	reqStu.Id = uuid.New()
+	// }
+
+	if err := r.dbMain.Ctx().WithContext(ctx).Create(&reqStu).Error; err != nil {
 		return err
 	}
 	return nil

@@ -17,11 +17,16 @@ type ResponseLoginUser struct {
 	LoginBy        string `json:"login_by,omitempty"`
 	// UserProfile    ResponseUserProfile `json:"user_profile ,omitempty"`
 }
-
-type RequestUserProfile struct {
-	Token string `json:"token"`
+type ResponseLoginMobileOTP struct {
+	Otp     string `json:"otp" validate:"required"`
+	Refcode string `json:"refcode" validate:"required"`
 }
-
+type RequestUserProfile struct {
+	Token string `json:"token" validate:"required"`
+}
+type RequestLoginMobilePhonUser struct {
+	MobileNo string `json:"mobile_no" validate:"required,min=10,max=10"`
+}
 type ResponseUserProfile struct {
 	AccountId           string `json:"account_id,omitempty"`
 	FirstNameTH         string `json:"first_name_th,omitempty"`

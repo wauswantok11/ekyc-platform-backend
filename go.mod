@@ -8,6 +8,8 @@ require (
 	google.golang.org/grpc v1.71.0
 )
 
+require github.com/samborkent/uuidv7 v0.0.0-20231110121620-f2e19d87e48b // indirect
+
 require (
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect

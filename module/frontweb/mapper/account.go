@@ -122,11 +122,19 @@ func MapModelAccountToResponseUserProfile(src *model.Account) *dto.ResponseUserP
 		AccountTitleEng:     src.TitleEng,
 		IdCardType:          src.CidType,
 		IdCardNum:           src.CidEncrypt,
-		HashIdCardNum:       src.CidHash, 
-		Email:     src.Email,
-		Mobile:    src.Phone,
-		BirthDate: src.BirthDate,
+		HashIdCardNum:       src.CidHash,
+		Email:               src.Email,
+		Mobile:              src.Phone,
+		BirthDate:           src.BirthDate,
 	}
 
 	return &res
+}
+
+func MapToMobileNoGetOTP(src one_id.ResponseLoginMobileOTP) dto.ResponseLoginMobileOTP {
+	response := dto.ResponseLoginMobileOTP{
+		Otp:     src.Data.Otp,
+		Refcode: src.Data.Refcode,
+	}
+	return response
 }

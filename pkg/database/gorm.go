@@ -71,6 +71,8 @@ func (c *Client) ConnectWithGormConfig(gormCfg gorm.Config) error {
 	if err := c.ctx.AutoMigrate(
 		model.Account{},
 		model.Address{},
+		model.Nationality{},
+		model.OtpManagement{},
 		model.Zipcode{}); err != nil {
 		return err
 	}

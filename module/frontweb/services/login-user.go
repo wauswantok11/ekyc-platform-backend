@@ -9,7 +9,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 
+	"git.inet.co.th/ekyc-platform-backend/model"
 	"git.inet.co.th/ekyc-platform-backend/module/frontweb/dto"
+	"git.inet.co.th/ekyc-platform-backend/module/frontweb/mapper"
 	"git.inet.co.th/ekyc-platform-backend/pkg/util"
 )
 
@@ -150,6 +152,7 @@ func (srv Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 
 	return &responseToken, "", nil
 }
+
 func (srv Service) LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, keyCookie, accountId string) error {
 	keys := []string{
 		accountId + "_account_token",
@@ -174,4 +177,38 @@ func (srv Service) LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, k
 	})
 
 	return nil
+}
+
+func (srv Service) LoginMobileService(ctxFiber *fiber.Ctx, ctx context.Context, mobileNo string) (*dto.ResponseLoginMobileOTP, string, error) {
+	// resp := dto.ResponseLoginMobileOTP{}
+
+	RespSuccessGetOTPOne, ResErrorGetOTPOne, err := srv.repo.OneId().LoginMobileGetOTP(ctx, mobileNo)
+	if err != nil {
+		if err.Error() == "error one" {
+			logrus.Error("[*] Error Service : One LoginMobileGetOTP -> ", err.Error())
+			return nil, ResErrorGetOTPOne.ErrorMessage, err
+		}
+		logrus.Error("[*] Error Service : One LoginMobileGetOTP -> ", err.Error())
+		return nil, ResErrorGetOTPOne.ErrorMessage, err
+	}
+
+	logrus.Println("RespSuccessGetOTPOne ", RespSuccessGetOTPOne)
+	// Create OTP - Management
+	reqStu := model.OtpManagement{
+		OtpCode:   RespSuccessGetOTPOne.Data.Otp,
+		RefCode:   RespSuccessGetOTPOne.Data.Refcode,
+		OtpMakeBy: "api one-id",
+		OtpFor:    "login-one",
+		OtpStatus: "waiting_for_confirm",
+		MobileNo:  mobileNo,
+	}
+
+	if err := srv.repo.CreateOtpManagemontRepo(ctx, reqStu); err != nil {
+		logrus.Error("[*] Error Service : GetAccountByToken -> ", err.Error())
+		return nil, "", err
+	}
+
+	resp := mapper.MapToMobileNoGetOTP(RespSuccessGetOTPOne)
+
+	return &resp, ResErrorGetOTPOne.ErrorMessage, nil
 }
