@@ -124,6 +124,13 @@ func (handler Handler) PostLoginMobilePhoneUserHandler(ctx *fiber.Ctx) error {
 				Message:    errOpenApiOne,
 				StatusCode: http.StatusServiceUnavailable,
 			})
+		} else if err.Error() == "error invalid" {
+			return ctx.Status(http.StatusBadRequest).JSON(dto.ApiResponse{
+				Status:     "failed",
+				Data:       "Bad Request",
+				Message:    errOpenApiOne,
+				StatusCode: http.StatusBadRequest,
+			})
 		}
 
 		return ctx.Status(http.StatusInternalServerError).JSON(dto.ApiResponse{

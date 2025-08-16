@@ -102,7 +102,7 @@ func (c *Client) LoginMobileGetOTP(ctx context.Context, mobileNo string) (Respon
 			logrus.Error("PKG LoginMobileGetOTP :  json.Unmarshal response error body", err)
 			return respSuccess, respError, err
 		}
-		return respSuccess, respError, errors.New("error one")
+		return respSuccess, respError, errors.New("error invalid")
 	}
 
 	logrus.Println("Body ", string(responseApi.Body))

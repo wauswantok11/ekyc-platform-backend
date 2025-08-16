@@ -180,11 +180,12 @@ func (srv Service) LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, k
 }
 
 func (srv Service) LoginMobileService(ctxFiber *fiber.Ctx, ctx context.Context, mobileNo string) (*dto.ResponseLoginMobileOTP, string, error) {
-	// resp := dto.ResponseLoginMobileOTP{}
-
 	RespSuccessGetOTPOne, ResErrorGetOTPOne, err := srv.repo.OneId().LoginMobileGetOTP(ctx, mobileNo)
 	if err != nil {
 		if err.Error() == "error one" {
+			logrus.Error("[*] Error Service : One LoginMobileGetOTP -> ", err.Error())
+			return nil, ResErrorGetOTPOne.ErrorMessage, err
+		} else if err.Error() == "error invalid" {
 			logrus.Error("[*] Error Service : One LoginMobileGetOTP -> ", err.Error())
 			return nil, ResErrorGetOTPOne.ErrorMessage, err
 		}
