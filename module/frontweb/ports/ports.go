@@ -33,6 +33,7 @@ type Repository interface {
 	//* CRUD UserRepo
 	FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
 	FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*model.Account, error)
+	FindChackUsernameRepo(ctx context.Context, username string) (string, error)
 
 	CreateUserRepo(ctx context.Context, userProfile map[string]interface{}) error
 	UpdateUserRepo(ctx context.Context, userProfile map[string]interface{}, id *string) error
@@ -49,4 +50,5 @@ type Service interface {
 	//* Get Profile One Id
 	GetProfileOneIdService(ctx context.Context, accountId, token string) (*dto.ResponseUserProfile, string, error)
 	GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error)
+	PostCheckUsernameDupService(ctx context.Context, username string) (string, string, error)
 }

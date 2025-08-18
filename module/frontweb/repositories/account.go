@@ -22,6 +22,7 @@ func (r Repository) GetAccountByAccountIdOneRepo(ctx context.Context, accountIdO
 
 	return "", nil
 }
+
 func (r Repository) FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*model.Account, error) {
 	_, span := r.Trace(ctx, "FindUserDetailByAccountIdRepo", oteltrace.WithAttributes(
 		attribute.String("AccountIdOne", accountId),
@@ -63,6 +64,30 @@ func (r Repository) FindUserByAccountIdRepo(ctx context.Context, accountId strin
 	}
 	Id := account.Id.String()
 	return &Id, nil
+}
+
+func (r Repository) FindChackUsernameRepo(ctx context.Context, username string) (string, error) {
+	_, span := r.Trace(ctx, "FindUserByAccountIdRepo", oteltrace.WithAttributes(
+		attribute.String("AccountIdOne", username),
+	))
+	defer span.End()
+
+	var account model.Account
+	err := r.dbMain.Ctx().WithContext(ctx).
+		Model(&model.Account{}).
+		Where("username = ?", username).
+		First(&account).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// ไม่เจอ user
+			return "username not found", nil
+		} 
+		return "", err
+	}
+
+	// ถ้าเจอ record
+	return "username duplicate", nil
 }
 
 func (r Repository) CreateUserRepo(ctx context.Context, userProfile map[string]interface{}) error {

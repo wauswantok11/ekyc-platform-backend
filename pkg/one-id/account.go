@@ -67,3 +67,40 @@ func (c *Client) GetAccountProfileAvatarById(ctx context.Context, accountOneId s
 
 	return base64Str, nil
 }
+
+func (c *Client) CheckUsernameDup(ctx context.Context, username string) (*ResponseCheckDupUsername, error) {
+	urlPath := fmt.Sprintf(`%s/api/check_username?username=%s`, c.url, username)
+
+	_, span := c.tracer.Start(ctx, urlPath)
+	defer span.End()
+	logrus.Println(urlPath)
+	var RespCheckDupUsername ResponseCheckDupUsername 
+
+	headers := map[string]string{	
+		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
+	}
+ 
+	responseApi, err := requests.Get(urlPath, headers, nil, int(c.timeOut))
+	if err != nil {
+		logrus.Errorln("Error connecting to One Id backend:", err.Error())
+		return nil, err
+	}
+
+	if err := sonic.Unmarshal(responseApi.Body, &RespCheckDupUsername); err != nil {
+		logrus.Error("PKG CheckUsernameDup : json.Unmarshal response success body", err)
+		return nil, err
+	}
+	
+	logrus.Println("ResponseCheckDupUsername : ", RespCheckDupUsername)
+
+	return &RespCheckDupUsername, nil
+
+}
+
+func (c *Client) CheckIdCardDup(ctx context.Context, cid string) (*ResponseCheckDupUsername, error) {
+	return nil,nil
+}
+
+func (c *Client) CheckEmailDup(ctx context.Context, email string) (*ResponseCheckDupUsername, error) {
+	return nil,nil
+}

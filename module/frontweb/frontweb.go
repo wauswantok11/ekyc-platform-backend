@@ -53,4 +53,6 @@ func addRouter(router fiber.Router, handler *handler.Handler, jwtSecret string, 
 	profile.Get("/avatar", handler.GetAvatarUserHandler)
 	profile.Get("/", handler.GetUserProfile)
 
+	user := v1.Group("/user")
+	user.Post("check-username", handler.GetCheckUsernameHandler)
 }
