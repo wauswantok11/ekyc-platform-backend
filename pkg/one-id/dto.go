@@ -88,5 +88,11 @@ type RequestLoginMobileOTP struct {
 type ResponseCheckDupUsername struct {
 	Message      string  `json:"message"`
 	Data         *string `json:"data"`
-	ErrorMessage *string  `json:"errorMessage"`
+	ErrorMessage *string `json:"errorMessage"`
+}
+type ResponseCheckDupEmail struct {
+	Result       string  `json:"result"`
+	Data         *string `json:"data"`
+	ErrorMessage *string `json:"errorMessage"`
+	Code         int     `json:"code"`
 }

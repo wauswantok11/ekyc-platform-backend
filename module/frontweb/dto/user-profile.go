@@ -30,6 +30,12 @@ type RequestLoginMobilePhonUser struct {
 type RequestUsername struct {
 	Username string `json:"username" validate:"required"`
 }
+type RequestCid struct {
+	Cid string `json:"cid" validate:"required"`
+}
+type RequestEmail struct {
+	Email string `json:"email" validate:"required"`
+}
 type ResponseUserProfile struct {
 	AccountId           string `json:"account_id,omitempty"`
 	FirstNameTH         string `json:"first_name_th,omitempty"`

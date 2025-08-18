@@ -66,7 +66,7 @@ func (r Repository) FindUserByAccountIdRepo(ctx context.Context, accountId strin
 	return &Id, nil
 }
 
-func (r Repository) FindChackUsernameRepo(ctx context.Context, username string) (string, error) {
+func (r Repository) FindCheckUsernameRepo(ctx context.Context, username string) (string, error) {
 	_, span := r.Trace(ctx, "FindUserByAccountIdRepo", oteltrace.WithAttributes(
 		attribute.String("AccountIdOne", username),
 	))
@@ -82,7 +82,7 @@ func (r Repository) FindChackUsernameRepo(ctx context.Context, username string) 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// ไม่เจอ user
 			return "username not found", nil
-		} 
+		}
 		return "", err
 	}
 
@@ -147,4 +147,49 @@ func (r Repository) CreateOtpManagemontRepo(ctx context.Context, reqStu model.Ot
 		return err
 	}
 	return nil
+}
+
+func (r Repository) FindCheckCidRepo(ctx context.Context, cid string) (string, error) {
+	_, span := r.Trace(ctx, "FindCheckCidRepo", oteltrace.WithAttributes(
+		attribute.String("AccountIdOne", cid),
+	))
+	defer span.End()
+
+	var account model.Account
+	err := r.dbMain.Ctx().WithContext(ctx).
+		Model(&model.Account{}).
+		Where("cid_hash = ?", cid).
+		First(&account).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "id not found", nil
+		}
+		return "", err
+	}
+	return "id duplicate", nil
+}
+
+func (r Repository) FindCheckEmailRepo(ctx context.Context, email string) (string, error) {
+	_, span := r.Trace(ctx, "FindCheckEmailRepo", oteltrace.WithAttributes(
+		attribute.String("AccountIdOne", email),
+	))
+	defer span.End()
+
+	var account model.Account
+	err := r.dbMain.Ctx().WithContext(ctx).
+		Model(&model.Account{}).
+		Where("email = ?", email).
+		First(&account).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// ไม่เจอ user
+			return "email not found", nil
+		}
+		return "", err
+	}
+
+	// ถ้าเจอ record
+	return "email duplicate", nil
 }
