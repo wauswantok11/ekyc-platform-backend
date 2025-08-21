@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"git.inet.co.th/ekyc-platform-backend/module/frontweb/dto"
-	"git.inet.co.th/ekyc-platform-backend/pkg/util"
 )
 
 // PostLoginUser
@@ -29,10 +28,15 @@ func (handler Handler) PostLoginUserHandler(ctx *fiber.Ctx) error {
 	if err := validate.Struct(payload); err != nil {
 		parts := strings.Split(err.Error(), "Error:")
 		trimmed := strings.TrimPrefix(parts[1], "Field validation for ")
-		return util.HttpError(ctx, http.StatusBadRequest, "Fail", strings.TrimSpace(trimmed))
+		return ctx.Status(http.StatusBadRequest).JSON(dto.ApiResponse{
+			Status:     "failed",
+			Data:       nil,
+			Message:    strings.TrimSpace(trimmed),
+			StatusCode: http.StatusBadRequest,
+		})
 	}
 
-	responseLogin, err := handler.svc.LoginUserOneService(ctx, ctx.UserContext(), payload)
+	responseLogin, errOpenApiOne, err := handler.svc.LoginUserOneService(ctx, ctx.UserContext(), payload)
 	if err != nil {
 		if err.Error() == "The user credentials were incorrect." {
 			return ctx.Status(http.StatusBadRequest).JSON(dto.ApiResponse{
@@ -41,11 +45,11 @@ func (handler Handler) PostLoginUserHandler(ctx *fiber.Ctx) error {
 				Message:    err.Error(),
 				StatusCode: http.StatusBadRequest,
 			})
-		} else if err.Error() == "login error" {
+		} else if err.Error() == "error one" {
 			return ctx.Status(http.StatusServiceUnavailable).JSON(dto.ApiResponse{
 				Status:     "failed",
 				Data:       "Service Unavailable",
-				Message:    err.Error(),
+				Message:    errOpenApiOne,
 				StatusCode: http.StatusServiceUnavailable,
 			})
 		}
@@ -64,4 +68,92 @@ func (handler Handler) PostLoginUserHandler(ctx *fiber.Ctx) error {
 		Message:    "OK",
 		StatusCode: http.StatusOK,
 	})
+}
+
+func (handler Handler) PostLogoutUserHandler(ctx *fiber.Ctx) error {
+	// ดึง JWT หรือ session ID จาก cookie
+	accountID, _ := ctx.Locals("account_id").(string)
+
+	if err := handler.svc.LogoutUserService(ctx, ctx.Context(), "authentication", accountID); err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.ApiResponse{
+			Status:     "internal server error",
+			Data:       "",
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		})
+	}
+
+	return ctx.Status(http.StatusOK).JSON(dto.ApiResponse{
+		Status:     "success",
+		Data:       "",
+		Message:    "OK",
+		StatusCode: http.StatusOK,
+	})
+}
+
+func (handler Handler) PostLoginMobilePhoneUserHandler(ctx *fiber.Ctx) error {
+	var payload dto.RequestLoginMobilePhonUser
+
+	if err := ctx.BodyParser(&payload); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(dto.ApiResponse{
+			Status:     "failed",
+			Data:       nil,
+			Message:    "invalid request",
+			StatusCode: http.StatusBadRequest,
+		})
+	}
+
+	var validate = validator.New()
+	if err := validate.Struct(payload); err != nil {
+		parts := strings.Split(err.Error(), "Error:")
+		trimmed := strings.TrimPrefix(parts[1], "Field validation for ")
+		return ctx.Status(http.StatusBadRequest).JSON(dto.ApiResponse{
+			Status:     "failed",
+			Data:       nil,
+			Message:    strings.TrimSpace(trimmed),
+			StatusCode: http.StatusBadRequest,
+		})
+	}
+
+	response, errOpenApiOne, err := handler.svc.LoginMobileService(ctx, ctx.Context(), payload.MobileNo)
+	if err != nil {
+		if err.Error() == "error one" {
+			return ctx.Status(http.StatusServiceUnavailable).JSON(dto.ApiResponse{
+				Status:     "failed",
+				Data:       "Service Unavailable",
+				Message:    errOpenApiOne,
+				StatusCode: http.StatusServiceUnavailable,
+			})
+		} else if err.Error() == "error invalid" {
+			return ctx.Status(http.StatusBadRequest).JSON(dto.ApiResponse{
+				Status:     "failed",
+				Data:       "Bad Request",
+				Message:    errOpenApiOne,
+				StatusCode: http.StatusBadRequest,
+			})
+		}
+
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.ApiResponse{
+			Status:     "failed",
+			Data:       "Internal Server Error",
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		})
+	}
+
+	return ctx.Status(http.StatusOK).JSON(dto.ApiResponse{
+		Status:     "success",
+		Data:       response,
+		Message:    "OK",
+		StatusCode: http.StatusOK,
+	})
+
+}
+
+func (handler Handler) PostLoginMobileOtpComfirmUserHandler(ctx *fiber.Ctx) error {
+	return nil
+}
+
+func (handler Handler) PostLoginCidMobileUserHandler(ctx *fiber.Ctx) error {
+	return nil
 }

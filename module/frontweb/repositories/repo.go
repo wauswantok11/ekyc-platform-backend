@@ -59,6 +59,10 @@ func (r Repository) OneId() *oneid.Client {
 	return r.oneId
 }
 
+func (r Repository) DB() *database.Client {
+	return r.dbMain
+}
+
 func New(app *app.Context) (*Repository, error) {
 	logrus := app.NewLogger().WithField("module", moduleName)
 	dbMain, err := app.NewDBMainClient(logrus)

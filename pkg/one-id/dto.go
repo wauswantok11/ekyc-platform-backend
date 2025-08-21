@@ -46,26 +46,53 @@ type RequestLoginPWD struct {
 }
 
 type ResponseApiAccountOneId struct {
-	ID                  string    `json:"id"`
-	FirstNameTH         string    `json:"first_name_th"`
-	MiddleNameTH        string   `json:"middle_name_th"`
-	LastNameTH          string    `json:"last_name_th"`
-	FirstNameEng        string    `json:"first_name_eng"`
-	MiddleNameEng       string   `json:"middle_name_eng"`
-	LastNameEng         string    `json:"last_name_eng"`
-	SpecialTitleNameTH  string   `json:"special_title_name_th"`
-	AccountTitleTH      string    `json:"account_title_th"`
-	SpecialTitleNameEng string   `json:"special_title_name_eng"`
-	AccountTitleEng     string    `json:"account_title_eng"`
-	IDCardType          string    `json:"id_card_type"`
-	IDCardNum           string    `json:"id_card_num"`
-	HashIDCardNum       string    `json:"hash_id_card_num"`
-	AccountCategory     string    `json:"account_category"`
-	AccountSubCategory  string    `json:"account_sub_category"`
-	ThaiEmail           string    `json:"thai_email"`
-	ThaiEmail2          string    `json:"thai_email2"`
-	ThaiEmail3          string   `json:"thai_email3"`
-	StatusCD            string    `json:"status_cd"`
-	BirthDate           string    `json:"birth_date"` 
+	ID                  string `json:"id"`
+	FirstNameTH         string `json:"first_name_th"`
+	MiddleNameTH        string `json:"middle_name_th"`
+	LastNameTH          string `json:"last_name_th"`
+	FirstNameEng        string `json:"first_name_eng"`
+	MiddleNameEng       string `json:"middle_name_eng"`
+	LastNameEng         string `json:"last_name_eng"`
+	SpecialTitleNameTH  string `json:"special_title_name_th"`
+	AccountTitleTH      string `json:"account_title_th"`
+	SpecialTitleNameEng string `json:"special_title_name_eng"`
+	AccountTitleEng     string `json:"account_title_eng"`
+	IDCardType          string `json:"id_card_type"`
+	IDCardNum           string `json:"id_card_num"`
+	HashIDCardNum       string `json:"hash_id_card_num"`
+	AccountCategory     string `json:"account_category"`
+	AccountSubCategory  string `json:"account_sub_category"`
+	ThaiEmail           string `json:"thai_email"`
+	ThaiEmail2          string `json:"thai_email2"`
+	ThaiEmail3          string `json:"thai_email3"`
+	StatusCD            string `json:"status_cd"`
+	BirthDate           string `json:"birth_date"`
 }
- 
+type ResponseLoginMobileOTP struct {
+	Result string `json:"result"`
+	Data   struct {
+		Otp     string `json:"otp"`
+		Refcode string `json:"refcode"`
+	} `json:"data"`
+	ErrorMessage *string `json:"errorMessage"`
+	Code         int     `json:"code"`
+}
+
+type RequestLoginMobileOTP struct {
+	ClientId     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+	Refcode      string `json:"refcode"`
+	MobileNo     string `json:"mobile_no"`
+}
+
+type ResponseCheckDupUsername struct {
+	Message      string  `json:"message"`
+	Data         *string `json:"data"`
+	ErrorMessage *string `json:"errorMessage"`
+}
+type ResponseCheckDupEmail struct {
+	Result       string  `json:"result"`
+	Data         *string `json:"data"`
+	ErrorMessage *string `json:"errorMessage"`
+	Code         int     `json:"code"`
+}

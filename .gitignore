@@ -86,3 +86,6 @@ testem.log
 # Deploy example
 !/deploy/docker-compose.yml
 /deploy/db
+
+#air
+.air.toml

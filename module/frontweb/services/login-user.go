@@ -4,26 +4,35 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 
+	"git.inet.co.th/ekyc-platform-backend/model"
 	"git.inet.co.th/ekyc-platform-backend/module/frontweb/dto"
+	"git.inet.co.th/ekyc-platform-backend/module/frontweb/mapper"
 	"git.inet.co.th/ekyc-platform-backend/pkg/util"
 )
 
 // var ctxFiber *fiber.Ctx
 
-func (svc Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser, error) {
-	ResponseSuccessLoginPWD, ResponseErrorLoginPWD, err := svc.repo.OneId().LoginPWD(ctx, payload.Username, payload.Password)
+func (srv Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser, string, error) {
+	tx := srv.repo.DB().Ctx().Begin()
+	if tx.Error != nil {
+		logrus.Error("[*] Tx Error : LoginUserOneService -> ", tx.Error)
+		return nil, "", tx.Error
+	}
+
+	ResponseSuccessLoginPWD, ResponseErrorLoginPWD, err := srv.repo.OneId().LoginPWD(ctx, payload.Username, payload.Password)
 	if err != nil {
 		logrus.Error("[*] Error Service : LoginPWD -> ", err.Error())
-		return nil, err
+		return nil, "", err
 	}
 
 	if ResponseErrorLoginPWD != nil {
-		logrus.Error("[*] API Error : SetRedisRepo -> ", ResponseErrorLoginPWD)
-		return nil, errors.New(ResponseErrorLoginPWD.ErrorMessage)
+		logrus.Error("[*] API Error : SetRedisRepo -> ", ResponseErrorLoginPWD.ErrorMessage)
+		return nil, ResponseErrorLoginPWD.ErrorMessage, errors.New("error one")
 	}
 
 	var responseToken dto.ResponseLoginUser
@@ -38,17 +47,18 @@ func (svc Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 		responseToken.Username = ResponseSuccessLoginPWD.Username
 		responseToken.LoginBy = ResponseSuccessLoginPWD.LoginBy
 	} else {
-		return nil, errors.New("login error")
+		return nil, "", errors.New("error one")
 	}
 
-	AccountOneId, ErrGetAccountByToken, err := svc.repo.OneId().GetAccountByToken(ctx, responseToken.AccessToken)
+	AccountOneId, ErrGetAccountByToken, err := srv.repo.OneId().GetAccountByToken(ctx, responseToken.AccessToken)
 	if err != nil {
 		logrus.Error("[*] Error Service : GetAccountByToken -> ", err.Error())
-		return nil, err
+		return nil, "", err
 	}
+
 	if ErrGetAccountByToken != nil {
-		logrus.Error("[*] API Error : SetRedisRepo -> ", ErrGetAccountByToken)
-		return nil, errors.New(ErrGetAccountByToken.ErrorMessage)
+		logrus.Error("[*] API Error : ErrGetAccountByToken -> ", ErrGetAccountByToken)
+		return nil, ErrGetAccountByToken.ErrorMessage, errors.New("error one")
 	}
 
 	//* Set Redis Token
@@ -63,11 +73,11 @@ func (svc Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 		"username ":       responseToken.Username,
 		"login_by ":       responseToken.LoginBy,
 	}
-	
+
 	cKeyToken := fmt.Sprintf("%s_account_token", responseToken.AccountId)
-	if errRedis := svc.repo.SetRedisRepo(ctx, cKeyToken, strDataToken); errRedis != nil {
+	if errRedis := srv.repo.SetRedisRepo(ctx, cKeyToken, strDataToken); errRedis != nil {
 		logrus.Error("[*] Error : SetRedisRepo -> ", errRedis.Error())
-		return nil, errRedis
+		return nil, "", errRedis
 	}
 
 	strDataProfileDetail := map[string]interface{}{
@@ -95,24 +105,111 @@ func (svc Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 	}
 
 	//* Gen JWT Token
-	jwtCode, errJwt := svc.repo.GenJwtTokenRepo(ctx, strDataProfileDetail)
+	jwtCode, errJwt := srv.repo.GenJwtTokenRepo(ctx, strDataProfileDetail)
 	if errJwt != nil {
 		logrus.Error("[*] Error : GenJwtTokenRepo -> ", errJwt.Error())
-		return nil, errJwt
+		return nil, "", errJwt
 	}
 
 	//* Set Cookies
 	if errCookie := util.SetCookieHandler(ctxFiber, "authentication", jwtCode); errCookie != nil {
 		logrus.Error("[*] Error : SetCookieHandler -> ", errCookie.Error())
-		return nil, errCookie
+		return nil, "", errCookie
 	}
 
 	//* Set Redis Profile
 	cKeyAccount := fmt.Sprintf("%s_account_detail", responseToken.AccountId)
-	if errRedis := svc.repo.SetRedisRepo(ctx, cKeyAccount, strDataProfileDetail); errRedis != nil {
+	if errRedis := srv.repo.SetRedisRepo(ctx, cKeyAccount, strDataProfileDetail); errRedis != nil {
 		logrus.Error("[*] Error : SetRedisRepo -> ", errRedis.Error())
-		return nil, errRedis
+		return nil, "", errRedis
 	}
 
-	return &responseToken, nil
+	//* Find account in Database
+	Id, errFindAccount := srv.repo.FindUserByAccountIdRepo(ctx, AccountOneId.ID)
+	if errFindAccount != nil {
+		logrus.Error("[*] Error : FindUserByAccountIdRepo -> ", errFindAccount.Error())
+		return nil, "", errFindAccount
+	}
+
+	//* create or update account
+	if Id != nil {
+		//* update
+		errUpdate := srv.repo.UpdateUserRepo(ctx, strDataProfileDetail, Id)
+		if errUpdate != nil {
+			tx.Rollback()
+			logrus.Error("[*] Error : UpdateUserRepo -> ", errUpdate.Error())
+			return nil, "", errUpdate
+		}
+	} else {
+		//* create
+		errCreate := srv.repo.CreateUserRepo(ctx, strDataProfileDetail)
+		if errCreate != nil {
+			tx.Rollback()
+			logrus.Error("[*] Error : CreateUserRepo -> ", errCreate.Error())
+			return nil, "", errCreate
+		}
+	}
+
+	return &responseToken, "", nil
+}
+
+func (srv Service) LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, keyCookie, accountId string) error {
+	keys := []string{
+		accountId + "_account_token",
+		accountId + "_account_detail",
+	}
+
+	for _, k := range keys {
+		if err := srv.repo.DelRedisRepo(ctx, k); err != nil {
+			logrus.Error("Failed to delete keys from Redis:", err)
+			return err
+		}
+
+	}
+
+	ctxFiber.Cookie(&fiber.Cookie{
+		Name:     "authentication",
+		Value:    "",
+		Path:     "/",
+		HTTPOnly: true,
+		Secure:   false,
+		Expires:  time.Now().Add(-time.Hour),
+	})
+
+	return nil
+}
+
+func (srv Service) LoginMobileService(ctxFiber *fiber.Ctx, ctx context.Context, mobileNo string) (*dto.ResponseLoginMobileOTP, string, error) {
+	RespSuccessGetOTPOne, ResErrorGetOTPOne, err := srv.repo.OneId().LoginMobileGetOTP(ctx, mobileNo)
+	if err != nil {
+		if err.Error() == "error one" {
+			logrus.Error("[*] Error Service : One LoginMobileGetOTP -> ", err.Error())
+			return nil, ResErrorGetOTPOne.ErrorMessage, err
+		} else if err.Error() == "error invalid" {
+			logrus.Error("[*] Error Service : One LoginMobileGetOTP -> ", err.Error())
+			return nil, ResErrorGetOTPOne.ErrorMessage, err
+		}
+		logrus.Error("[*] Error Service : One LoginMobileGetOTP -> ", err.Error())
+		return nil, ResErrorGetOTPOne.ErrorMessage, err
+	}
+
+	logrus.Println("RespSuccessGetOTPOne ", RespSuccessGetOTPOne)
+	// Create OTP - Management
+	reqStu := model.OtpManagement{
+		OtpCode:   RespSuccessGetOTPOne.Data.Otp,
+		RefCode:   RespSuccessGetOTPOne.Data.Refcode,
+		OtpMakeBy: "api one-id",
+		OtpFor:    "login-one",
+		OtpStatus: "waiting_for_confirm",
+		MobileNo:  mobileNo,
+	}
+
+	if err := srv.repo.CreateOtpManagemontRepo(ctx, reqStu); err != nil {
+		logrus.Error("[*] Error Service : GetAccountByToken -> ", err.Error())
+		return nil, "", err
+	}
+
+	resp := mapper.MapToMobileNoGetOTP(RespSuccessGetOTPOne)
+
+	return &resp, ResErrorGetOTPOne.ErrorMessage, nil
 }

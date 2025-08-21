@@ -38,3 +38,12 @@ func (r Repository) SetRedisRepo(ctx context.Context, cKey string, userProfile m
 	}
 	return nil
 }
+
+func (r Repository) DelRedisRepo(ctx context.Context, cKey string) error {
+ 	_, span := r.Trace(ctx, "SetRedisRepo", oteltrace.WithAttributes(
+		attribute.String("Set Redis Token One", cKey),
+	))
+	defer span.End()
+
+	return nil
+}
