@@ -32,9 +32,9 @@ func addRouter(router fiber.Router, handler *handler.Handler, jwtSecret string, 
 
 	loginUser := v1.Group("/login")
 	loginUser.Post("/user", handler.PostLoginUserHandler)
-	loginUser.Post("/cid-mobile", handler.PostLoginUserHandler)
-	loginUser.Post("/mobile-otp", handler.PostLoginMobilePhoneUserHandler)
-	loginUser.Post("/mobile-otp-comfirm", handler.PostLoginMobileOtpComfirmUserHandler)
+	// loginUser.Post("/cid-mobile", handler.PostLoginUserHandler)
+	// loginUser.Post("/mobile-otp", handler.PostLoginMobilePhoneUserHandler)
+	// loginUser.Post("/mobile-otp-comfirm", handler.PostLoginMobileOtpComfirmUserHandler)
 
 	logoutUser := v1.Group("/logout")
 	logoutUser.Post("/", middleware.AuthMiddleware(redis, jwtSecret), handler.PostLogoutUserHandler)
@@ -56,5 +56,5 @@ func addRouter(router fiber.Router, handler *handler.Handler, jwtSecret string, 
 	user := v1.Group("/user")
 	user.Post("check-username", handler.GetCheckUsernameHandler)
 	user.Post("check-cid", handler.PostCheckCidHandler)
-	user.Post("check-username", handler.PostCheckEmailHandler)
+	user.Post("check-email", handler.PostCheckEmailHandler)
 }

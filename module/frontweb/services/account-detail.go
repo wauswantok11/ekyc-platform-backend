@@ -75,6 +75,6 @@ func (srv Service) PostCheckEmailDupService(ctx context.Context, email string) (
 			return "email duplicate", "", nil
 		}
 	}
-	return "email duplicate", "", nil
+	return "email not fount", "", nil
 
 }

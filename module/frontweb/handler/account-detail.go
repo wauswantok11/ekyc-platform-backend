@@ -102,7 +102,7 @@ func (h Handler) PostCheckCidHandler(ctx *fiber.Ctx) error {
 	if response == "id duplicate" {
 		return ctx.Status(http.StatusBadRequest).JSON(dto.ApiResponse{
 			Status:     "failed",
-			Data:       "id duplicate",
+			Data:       "id card duplicate",
 			Message:    "Bad Request",
 			StatusCode: http.StatusBadRequest,
 		})
@@ -110,7 +110,7 @@ func (h Handler) PostCheckCidHandler(ctx *fiber.Ctx) error {
 
 	return ctx.Status(http.StatusOK).JSON(dto.ApiResponse{
 		Status:     "success",
-		Data:       "id not found",
+		Data:       "id card not found",
 		Message:    "OK",
 		StatusCode: http.StatusOK,
 	})

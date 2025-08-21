@@ -31,7 +31,7 @@ type RequestUsername struct {
 	Username string `json:"username" validate:"required"`
 }
 type RequestCid struct {
-	Cid string `json:"cid" validate:"required"`
+	Cid string `json:"id_card" validate:"required,min=13,max=13"`
 }
 type RequestEmail struct {
 	Email string `json:"email" validate:"required"`
