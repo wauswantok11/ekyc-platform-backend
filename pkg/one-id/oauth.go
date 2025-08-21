@@ -116,6 +116,7 @@ func (c *Client) LoginMobileGetOTP(ctx context.Context, mobileNo string) (Respon
 	logrus.Println("respError :", respError)
 	return respSuccess, respError, nil
 }
+
 func (c *Client) PostRegisterAccount(ctx context.Context, data RequestApiRegisterOneId) (*ResponseApiRegisterOneId, *ResponseErrorOneId, error) {
 	_, span := c.tracer.Start(ctx, "one_id.api_register_citizen")
 	defer span.End()
@@ -160,3 +161,4 @@ func (c *Client) PostRegisterAccount(ctx context.Context, data RequestApiRegiste
 	return &responseRegister, nil, nil
 
 }
+ 

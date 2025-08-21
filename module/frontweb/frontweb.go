@@ -13,14 +13,14 @@ import (
 
 func Create(app *app.Context) error {
 	repo, err := repositories.New(app)
-	if err != nil { 
+	if err != nil {
 		return err
 	}
 	svc := services.New(repo)
 	handler := handler.NewHandler(svc)
 	router := app.Router.Group(app.Config.App.PrefixPath)
-	JwtKey := app.Config.Secret.JwtKey 
-	addRouter(router, handler, JwtKey,repo.Cache())
+	JwtKey := app.Config.Secret.JwtKey
+	addRouter(router, handler, JwtKey, repo.Cache())
 	return nil
 }
 
@@ -32,25 +32,29 @@ func addRouter(router fiber.Router, handler *handler.Handler, jwtSecret string, 
 
 	loginUser := v1.Group("/login")
 	loginUser.Post("/user", handler.PostLoginUserHandler)
-	loginUser.Post("/cid-mobile", handler.PostLoginUserHandler)
-	loginUser.Post("/mobile-otp", handler.PostLoginMobilePhoneUserHandler)
-	loginUser.Post("/mobile-otp-comfirm", handler.PostLoginMobileOtpComfirmUserHandler)
+	// loginUser.Post("/cid-mobile", handler.PostLoginUserHandler)
+	// loginUser.Post("/mobile-otp", handler.PostLoginMobilePhoneUserHandler)
+	// loginUser.Post("/mobile-otp-comfirm", handler.PostLoginMobileOtpComfirmUserHandler)
 
 	logoutUser := v1.Group("/logout")
 	logoutUser.Post("/", middleware.AuthMiddleware(redis, jwtSecret), handler.PostLogoutUserHandler)
-	
+
 	sharedToken := v1.Group("/shared-token")
 	sharedToken.Get("/:shared_token", handler.GetSharedTokenHandler)
-	
+
 	forgetPassword := v1.Group("/forget-password")
 	forgetPassword.Post("/email", handler.PostForgetPasswordEmailUserHandler)
 	forgetPassword.Post("/mobile", handler.PostForgetPasswordMobileUserHandler)
-	
+
 	register := v1.Group("/register")
 	register.Post("/", handler.PostRegisterUserHandler)
 
-	profile := v1.Group("/profile",middleware.AuthMiddleware(redis, jwtSecret))
+	profile := v1.Group("/profile", middleware.AuthMiddleware(redis, jwtSecret))
 	profile.Get("/avatar", handler.GetAvatarUserHandler)
 	profile.Get("/", handler.GetUserProfile)
 
+	user := v1.Group("/user")
+	user.Post("check-username", handler.GetCheckUsernameHandler)
+	user.Post("check-cid", handler.PostCheckCidHandler)
+	user.Post("check-email", handler.PostCheckEmailHandler)
 }

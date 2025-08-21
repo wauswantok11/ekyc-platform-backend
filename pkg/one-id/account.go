@@ -67,3 +67,120 @@ func (c *Client) GetAccountProfileAvatarById(ctx context.Context, accountOneId s
 
 	return base64Str, nil
 }
+
+func (c *Client) CheckUsernameDup(ctx context.Context, username string) (*ResponseCheckDupUsername, error) {
+	urlPath := fmt.Sprintf(`%s/api/check_username?username=%s`, c.url, username)
+
+	_, span := c.tracer.Start(ctx, urlPath)
+	defer span.End()
+	logrus.Println(urlPath)
+	var RespCheckDupUsername ResponseCheckDupUsername
+
+	headers := map[string]string{
+		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
+	}
+
+	responseApi, err := requests.Get(urlPath, headers, nil, int(c.timeOut))
+	if err != nil {
+		logrus.Errorln("Error connecting to One Id backend:", err.Error())
+		return nil, err
+	}
+
+	if err := sonic.Unmarshal(responseApi.Body, &RespCheckDupUsername); err != nil {
+		logrus.Error("PKG CheckUsernameDup : json.Unmarshal response success body", err)
+		return nil, err
+	}
+
+	logrus.Println("ResponseCheckDupUsername : ", RespCheckDupUsername)
+
+	return &RespCheckDupUsername, nil
+
+}
+
+func (c *Client) CheckIdCardDup(ctx context.Context, cid string) (*ResponseCheckDupUsername, error) {
+	_, span := c.tracer.Start(ctx, "one_id.check_account_by_cid")
+	defer span.End()
+
+	urlPath := fmt.Sprintf(`%s/api/check_id?idCard=%s`, c.url, cid)
+	var RespCheckDupUsername ResponseCheckDupUsername
+
+	headers := map[string]string{
+		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
+	}
+
+	responseApi, err := requests.Get(urlPath, headers, nil, int(c.timeOut))
+	if err != nil {
+		logrus.Errorln("Error connecting to One Id backend:", err.Error())
+		return nil, err
+	}
+
+	if err := sonic.Unmarshal(responseApi.Body, &RespCheckDupUsername); err != nil {
+		logrus.Error("PKG CheckUsernameDup : json.Unmarshal response success body", err)
+		return nil, err
+	}
+
+	return &RespCheckDupUsername, nil
+}
+
+func (c *Client) CheckEmailDup(ctx context.Context, email string) (*ResponseCheckDupEmail, error) {
+	_, span := c.tracer.Start(ctx, "one_id.check_account_by_email")
+	defer span.End()
+
+	urlPath := fmt.Sprintf(`%s/api/check_email?email=%s`, c.url, email)
+	var ResponseCheckDupEmail ResponseCheckDupEmail
+
+	headers := map[string]string{
+		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
+	}
+
+	responseApi, err := requests.Get(urlPath, headers, nil, int(c.timeOut))
+	if err != nil {
+		logrus.Errorln("Error connecting to One Id backend:", err.Error())
+		return nil, err
+	}
+
+	if err := sonic.Unmarshal(responseApi.Body, &ResponseCheckDupEmail); err != nil {
+		logrus.Error("PKG CheckUsernameDup : json.Unmarshal response success body", err)
+		return nil, err
+	}
+
+	return &ResponseCheckDupEmail, nil
+}
+
+// func (c *Client) CheckAccountByCid(ctx context.Context, cid string) (bool, error) {
+// 	_, span := c.tracer.Start(ctx, "one_id.check_account_by_cid")
+// 	defer span.End()
+
+// 	urlPath := fmt.Sprintf(`%s/api/check_id?idCard=%s`, c.url, cid)
+// 	headers := map[string]string{
+// 		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
+// 	}
+// 	_, err := requests.Get(urlPath, headers, nil, int(c.timeOut))
+// 	if err != nil {
+// 		if err != fiber.ErrBadRequest {
+// 			logrus.Errorln("Error connecting to One Id backend:", err.Error())
+// 			return false, errors.New("failed to connect to One Id backend")
+// 		}
+// 		return false, nil
+// 	}
+// 	return true, nil
+// }
+
+// func (c *Client) CheckAccountByEmail(ctx context.Context, email string) (bool, error) {
+// 	_, span := c.tracer.Start(ctx, "one_id.check_account_by_email")
+// 	defer span.End()
+
+// 	urlPath := fmt.Sprintf(`%s/api/check_id?idCard=%s`, c.url, email)
+// 	headers := map[string]string{
+// 		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
+// 	}
+// 	_, err := requests.Get(urlPath, headers, nil, int(c.timeOut))
+// 	if err != nil {
+// 		if err != fiber.ErrBadRequest {
+// 			logrus.Errorln("Error connecting to One Id backend:", err.Error())
+// 			return false, errors.New("failed to connect to One Id backend")
+// 		}
+// 		return false, nil
+// 	}
+// 	return true, nil
+// }

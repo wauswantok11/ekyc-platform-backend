@@ -34,8 +34,12 @@ type Repository interface {
 	FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
 	FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*model.Account, error)
 
-	CreateUserRepo(ctx context.Context, user model.Account) error
+ 	CreateUserRepo(ctx context.Context, user model.Account) error
 	UpdateUserRepo(ctx context.Context, user model.Account, id *string) error
+ 	FindCheckUsernameRepo(ctx context.Context, username string) (string, error)
+	FindCheckEmailRepo(ctx context.Context, email string) (string, error)
+	FindCheckCidRepo(ctx context.Context, cid string) (string, error)
+ 
 	CreateOtpManagemontRepo(ctx context.Context, reqStu model.OtpManagement) error
 
 }
@@ -51,4 +55,11 @@ type Service interface {
 
 	//* Register
 	RegisterUserService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestRegisterUser) (string, error)
+	LoginMobileService(ctxFiber *fiber.Ctx, ctx context.Context, mobileNo string) (*dto.ResponseLoginMobileOTP, string, error)
+
+	//* Check Dup
+	PostCheckUsernameDupService(ctx context.Context, username string) (string, string, error)
+	PostCheckCidDupService(ctx context.Context, cid string) (string, string, error)
+	PostCheckEmailDupService(ctx context.Context, email string) (string, string, error)
+
 }

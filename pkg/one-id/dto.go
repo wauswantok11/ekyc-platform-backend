@@ -84,6 +84,7 @@ type RequestLoginMobileOTP struct {
 	Refcode      string `json:"refcode"`
 	MobileNo     string `json:"mobile_no"`
 }
+
 type RequestApiRegisterOneId struct {
 	TitleTh        string `json:"account_title_th" validate:"required"`
 	SpecialTitleTh string `json:"special_title_name_th,omitempty"`
@@ -122,5 +123,17 @@ type RegisterData struct {
 	AccountID string `json:"accountID"`
 	Email     string `json:"email"`
 	OneChat   string `json:"one_chat"`
-	OneBox    string `json:"one_box"`
+  OneBox    string `json:"one_box"`
+}
+
+type ResponseCheckDupUsername struct {
+	Message      string  `json:"message"`
+	Data         *string `json:"data"`
+	ErrorMessage *string `json:"errorMessage"`
+}
+type ResponseCheckDupEmail struct {
+	Result       string  `json:"result"`
+	Data         *string `json:"data"`
+	ErrorMessage *string `json:"errorMessage"`
+	Code         int     `json:"code"`
 }

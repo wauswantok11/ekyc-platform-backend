@@ -27,6 +27,15 @@ type RequestUserProfile struct {
 type RequestLoginMobilePhonUser struct {
 	MobileNo string `json:"mobile_no" validate:"required,min=10,max=10"`
 }
+type RequestUsername struct {
+	Username string `json:"username" validate:"required"`
+}
+type RequestCid struct {
+	Cid string `json:"id_card" validate:"required,min=13,max=13"`
+}
+type RequestEmail struct {
+	Email string `json:"email" validate:"required"`
+}
 type ResponseUserProfile struct {
 	AccountId           string `json:"account_id,omitempty"`
 	FirstNameTH         string `json:"first_name_th,omitempty"`
