@@ -48,7 +48,6 @@ type Service interface {
 	//* Login Account One Id
 	LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser, string, error)
 	LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, keyCookie, accountId string) error
-	LoginMobileService(ctxFiber *fiber.Ctx, ctx context.Context, mobileNo string) (*dto.ResponseLoginMobileOTP, string, error) 
 	//* Get Profile One Id
 	GetProfileOneIdService(ctx context.Context, accountId, token string) (*dto.ResponseUserProfile, string, error)
 	GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error)
