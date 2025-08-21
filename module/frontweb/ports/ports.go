@@ -34,10 +34,10 @@ type Repository interface {
 	FindUserByAccountIdRepo(ctx context.Context, accountId string) (*string, error)
 	FindUserDetailByAccountIdRepo(ctx context.Context, accountId string) (*model.Account, error)
 
-	CreateUserRepo(ctx context.Context, userProfile map[string]interface{}) error
-	UpdateUserRepo(ctx context.Context, userProfile map[string]interface{}, id *string) error
-
+	CreateUserRepo(ctx context.Context, user model.Account) error
+	UpdateUserRepo(ctx context.Context, user model.Account, id *string) error
 	CreateOtpManagemontRepo(ctx context.Context, reqStu model.OtpManagement) error
+
 }
 
 type Service interface {
@@ -45,8 +45,10 @@ type Service interface {
 	LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestLoginUser) (*dto.ResponseLoginUser, string, error)
 	LogoutUserService(ctxFiber *fiber.Ctx, ctx context.Context, keyCookie, accountId string) error
 	LoginMobileService(ctxFiber *fiber.Ctx, ctx context.Context, mobileNo string) (*dto.ResponseLoginMobileOTP, string, error) 
-
 	//* Get Profile One Id
 	GetProfileOneIdService(ctx context.Context, accountId, token string) (*dto.ResponseUserProfile, string, error)
 	GetProfileOneAvatarByAccountOneIdService(ctx context.Context, accountOneId string) (string, error)
+
+	//* Register
+	RegisterUserService(ctxFiber *fiber.Ctx, ctx context.Context, payload dto.RequestRegisterUser) (string, error)
 }

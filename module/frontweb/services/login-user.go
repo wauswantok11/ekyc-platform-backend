@@ -131,10 +131,11 @@ func (srv Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 		return nil, "", errFindAccount
 	}
 
+	upsertData := mapper.MapAccountOneIdToModelAccount(AccountOneId)
 	//* create or update account
 	if Id != nil {
 		//* update
-		errUpdate := srv.repo.UpdateUserRepo(ctx, strDataProfileDetail, Id)
+		errUpdate := srv.repo.UpdateUserRepo(ctx, *upsertData, Id)
 		if errUpdate != nil {
 			tx.Rollback()
 			logrus.Error("[*] Error : UpdateUserRepo -> ", errUpdate.Error())
@@ -142,7 +143,7 @@ func (srv Service) LoginUserOneService(ctxFiber *fiber.Ctx, ctx context.Context,
 		}
 	} else {
 		//* create
-		errCreate := srv.repo.CreateUserRepo(ctx, strDataProfileDetail)
+		errCreate := srv.repo.CreateUserRepo(ctx, *upsertData)
 		if errCreate != nil {
 			tx.Rollback()
 			logrus.Error("[*] Error : CreateUserRepo -> ", errCreate.Error())
