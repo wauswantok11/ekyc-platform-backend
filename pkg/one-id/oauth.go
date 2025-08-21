@@ -117,3 +117,48 @@ func (c *Client) LoginMobileGetOTP(ctx context.Context, mobileNo string) (Respon
 	return respSuccess, respError, nil
 }
 
+func (c *Client) PostRegisterAccount(ctx context.Context, data RequestApiRegisterOneId) (*ResponseApiRegisterOneId, *ResponseErrorOneId, error) {
+	_, span := c.tracer.Start(ctx, "one_id.api_register_citizen")
+	defer span.End()
+	var responseRegister ResponseApiRegisterOneId
+	var responseError ResponseErrorOneId
+
+	data.RefCode = c.refCode
+	data.ClientId = c.clientId
+	data.SecretKey = c.clientSecret
+	data.IdCardType = "ID_CARD"
+
+	urlPath := fmt.Sprintf(`%s/api/citizen/register`, c.url)
+	headers := map[string]string{
+		fiber.HeaderContentType: fiber.MIMEApplicationJSON,
+	}
+	body, err := sonic.Marshal(data)
+	if err != nil {
+		logrus.Errorln("Error marshalling request body:", err.Error())
+		return nil, nil, err
+	}
+
+	responseApi, err := requests.Post(urlPath, headers, bytes.NewBuffer(body), int(c.timeOut))
+	if err != nil {
+		logrus.Errorln("Error connecting to One Id backend:", err.Error())
+		return nil, nil, errors.New("failed to connect to One Id backend")
+	}
+
+	logrus.Println("responseError:", responseApi.Code)
+	logrus.Println("responseApi:", responseApi)
+	if responseApi.Code != fiber.StatusOK {
+		if err := json.Unmarshal(responseApi.Body, &responseError); err != nil {
+			logrus.Error("PKG PostRegisterAccount : json.Unmarshal response error body", err)
+			return nil, nil, fmt.Errorf("error unmarshalling response error body: %w", err)
+		}
+		return nil, &responseError, nil
+	}
+
+	if err := sonic.Unmarshal(responseApi.Body, &responseRegister); err != nil {
+		logrus.Error("PKG PostRegisterAccount : json.Unmarshal response success body", err)
+		return nil, nil, fmt.Errorf("error unmarshalling response success body")
+	}
+	return &responseRegister, nil, nil
+
+}
+ 

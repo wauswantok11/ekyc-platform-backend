@@ -85,6 +85,47 @@ type RequestLoginMobileOTP struct {
 	MobileNo     string `json:"mobile_no"`
 }
 
+type RequestApiRegisterOneId struct {
+	TitleTh        string `json:"account_title_th" validate:"required"`
+	SpecialTitleTh string `json:"special_title_name_th,omitempty"`
+	FirstNameTh    string `json:"first_name_th" validate:"required"`
+	MiddleNameTh   string `json:"middle_name_th,omitempty"`
+	LastNameTh     string `json:"last_name_th" validate:"required"`
+
+	SpecialTitleEng string `json:"special_title_name_eng,omitempty"`
+	TitleEng        string `json:"account_title_eng" validate:"required"`
+	FirstNameEng    string `json:"first_name_eng" validate:"required"`
+	MiddleNameEng   string `json:"middle_name_eng,omitempty"`
+	LastNameEng     string `json:"last_name_eng" validate:"required"`
+
+	Email     string `json:"email" validate:"required,email"`
+	MobileNo  string `json:"mobile_no" validate:"required"`
+	BirthDate string `json:"birth_date" validate:"required"`
+	Username  string `json:"username" validate:"required"`
+	Password  string `json:"password" validate:"required"`
+
+	IdCardType string `json:"id_card_type" `
+	IdCardNum  string `json:"id_card_num" validate:"required"`
+
+	RefCode   string `json:"ref_code"`
+	ClientId  string `json:"clientId"`
+	SecretKey string `json:"secretKey"`
+}
+
+type ResponseApiRegisterOneId struct {
+	Result       string       `json:"result"`
+	Data         RegisterData `json:"data"`
+	ErrorMessage string       `json:"errorMessage"`
+	Code         int          `json:"code"`
+}
+
+type RegisterData struct {
+	AccountID string `json:"accountID"`
+	Email     string `json:"email"`
+	OneChat   string `json:"one_chat"`
+  OneBox    string `json:"one_box"`
+}
+
 type ResponseCheckDupUsername struct {
 	Message      string  `json:"message"`
 	Data         *string `json:"data"`
